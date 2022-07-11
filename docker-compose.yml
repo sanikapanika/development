@@ -1,7 +1,7 @@
 version: '3.7'
 
 networks:
-    shopware:
+  shopware:
 
 services:
   app_server:
@@ -16,9 +16,11 @@ services:
       - ~/.composer:/.composer
     tmpfs:
       - /tmp:mode=1777
+    environment:
+      - "TZ=Europe/Vienna"
 
   app_mysql:
-    build: dev-ops/docker/containers/mysql
+    build: dev-ops/docker/containers/mariadb
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: app
@@ -53,16 +55,28 @@ services:
           - mailhog
 
   adminer:
-    image: adminer:latest
+    image: phpmyadmin/phpmyadmin:4.7
+    environment:
+      PMA_USER: app
+      PMA_PASSWORD: app
+      PMA_HOST: app_mysql
+    stdin_open: true
+    volumes:
+      - /session
+    tty: true
+    ports:
+      - 9595:80/tcp
     networks:
       shopware:
+        aliases:
+          - mysql
 
   elasticsearch:
     image: elastic/elasticsearch:7.8.0
     networks:
-        shopware:
-            aliases:
-                - elasticsearch
+      shopware:
+        aliases:
+          - elasticsearch
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node

@@ -12,10 +12,14 @@ services:
           - docker.vm
     extra_hosts:
       - "docker.vm:127.0.0.1"
+      - "host.docker.internal:host-gateway"
     volumes:
       - ~/.composer:/.composer
     tmpfs:
       - /tmp:mode=1777
+    environment:
+      - "TZ=Europe/Vienna"
+      - "XDEBUG_ENABLED=1"
 
   app_mysql:
     build: dev-ops/docker/containers/mysql
@@ -52,9 +56,22 @@ services:
           - mailhog
 
   adminer:
-    image: adminer:latest
+    image: phpmyadmin/phpmyadmin:4.7
+    environment:
+        PMA_USER: app
+        PMA_PASSWORD: app
+        PMA_HOST: app_mysql
+    stdin_open: true
+    volumes:
+        - /session
+    tty: true
+    ports:
+        - 9595:80/tcp
     networks:
-      shopware:
+        shopware:
+            aliases:
+                - mysql
+
 
   elasticsearch:
     image: elastic/elasticsearch:7.8.0

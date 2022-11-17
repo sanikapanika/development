@@ -45,7 +45,7 @@
     "require": {
         "php": "^7.4.3 || ^8.0",
         "composer-runtime-api": "^2.0",
-        "shopware/platform": "6.4.16.0"
+        "shopware/platform": "6.4.17.1"
     },
     "scripts": {
         "post-update-cmd": [
